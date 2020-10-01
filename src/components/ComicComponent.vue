@@ -1,7 +1,7 @@
 <template>
   <v-row align="center">
-    <v-col cols="3"></v-col>
-    <v-col cols="12" sm="6">
+    <v-col cols="2"></v-col>
+    <v-col cols="12" md="8">
       <v-card>
         <v-card-title>
           {{ comic.title }}
@@ -21,8 +21,25 @@
             </v-col>
           </v-row>
           <v-row>
-            <v-col>
-              {{ comic }}
+            <v-col cols="6" md="4" class="order-md-1">
+              <v-btn block @click="getPreviousComic">
+                <v-icon>
+                  mdi-arrow-left
+                </v-icon>Previous
+              </v-btn>
+            </v-col>
+            <v-col cols="12" md="4" class="order-last order-md-2">
+              <v-btn block @click="getRandomComic">
+                Random
+              </v-btn>
+            </v-col>
+            <v-col cols="6" md="4" class="order-md-3">
+              <v-btn block @click="getNextComic">
+                Next
+                <v-icon>
+                  mdi-arrow-right
+                </v-icon>
+              </v-btn>
             </v-col>
           </v-row>
         </v-card-text>
@@ -55,6 +72,10 @@ export default {
     };
   },
   methods: {
+    /**
+     * Obtiene un comic por el numero
+     * @param Number number -> Numero del comic a buscar
+     */
     async getComic(number) {
       await axios
         .get(
@@ -67,6 +88,9 @@ export default {
         })
         .catch(console.log);
     },
+    /**
+     * Obtiene el numero del ultimo comic
+     */
     async getLastComic() {
       await axios
         .get("https://cors-anywhere.herokuapp.com/https://xkcd.com/info.0.json")
@@ -74,15 +98,40 @@ export default {
           this.last = res.data.num;
         });
     },
+    /**
+     * Obtiene el comic siguiente al actual
+     */
+    getNextComic() {
+      let next = this.comic.num + 1;
+      this.getComic(next);
+    },
+    /**
+     * Obtiene el comic anterior al actual
+     */
+    getPreviousComic() {
+      let previous = this.comic.num - 1;
+      this.getComic(previous);
+    },
+    /**
+     * Obtiene un comic al azar
+     */
+    getRandomComic() {
+      let random = this.getRandomIntFromInterval(1, this.last);
+
+      this.getComic(random);
+    },
+    /**
+     * Devuelve un numero aleatorio en un rango de 1 hasta el numero del ultimo comic
+     * @param Number min -> Numero minimo del intervalo
+     * @param Number max -> Numero maximo del intervalo
+     */
     getRandomIntFromInterval(min, max) {
       return Math.floor(Math.random() * (max - min + 1) + min);
     },
   },
   beforeMount() {
     this.getLastComic().then(() => {
-      let comicId = this.getRandomIntFromInterval(1, this.last);
-
-      this.getComic(comicId)
+      this.getRandomComic();
     });
   },
 };
