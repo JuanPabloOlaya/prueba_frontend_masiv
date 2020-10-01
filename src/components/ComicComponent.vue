@@ -13,7 +13,7 @@
           <v-row>
             <v-col>
               <v-card>
-                <v-img :src="comic.img"></v-img>
+                <v-img :src="comic.img" height="500" contain></v-img>
               </v-card>
               <p class="font-italic text-right">
                 "{{ comic.safe_title }}" - {{ comic.year }}
@@ -21,11 +21,15 @@
             </v-col>
           </v-row>
           <v-row>
+            <v-col cols="2"></v-col>
+            <v-col cols="8" align-self="center">
+              <v-rating large v-model="comic.rating"></v-rating>
+            </v-col>
+          </v-row>
+          <v-row>
             <v-col cols="6" md="4" class="order-md-1">
               <v-btn block @click="getPreviousComic">
-                <v-icon>
-                  mdi-arrow-left
-                </v-icon>Previous
+                <v-icon> mdi-arrow-left </v-icon>Previous
               </v-btn>
             </v-col>
             <v-col cols="12" md="4" class="order-last order-md-2">
@@ -67,6 +71,7 @@ export default {
         title: "",
         transcript: "",
         year: "",
+        rating: 0
       },
       last: "",
     };
