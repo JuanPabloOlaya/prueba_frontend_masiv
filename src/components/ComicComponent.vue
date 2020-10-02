@@ -13,7 +13,25 @@
           <v-row>
             <v-col>
               <v-card>
-                <v-img :src="comic.img" height="500" contain></v-img>
+                <v-img
+                  :src="comic.img"
+                  :lazy-src="comic.img"
+                  height="500"
+                  contain
+                >
+                  <template v-slot:placeholder>
+                    <v-row
+                      class="fill-height ma-0"
+                      align="center"
+                      justify="center"
+                    >
+                      <v-progress-circular
+                        indeterminate
+                        color="grey lighten-5"
+                      ></v-progress-circular>
+                    </v-row>
+                  </template>
+                </v-img>
               </v-card>
               <p class="font-italic text-right">
                 "{{ comic.safe_title }}" - {{ comic.year }}
@@ -22,8 +40,8 @@
           </v-row>
           <v-row>
             <v-col cols="2"></v-col>
-            <v-col cols="8" align-self="center">
-              <v-rating large v-model="comic.rating"></v-rating>
+            <v-col cols="8" class="text-center">
+              <v-rating large v-model="comic.rating" @change="sortOutComic"></v-rating>
             </v-col>
           </v-row>
           <v-row>
@@ -71,7 +89,7 @@ export default {
         title: "",
         transcript: "",
         year: "",
-        rating: 0
+        rating: 0,
       },
       last: "",
     };
@@ -82,16 +100,32 @@ export default {
      * @param Number number -> Numero del comic a buscar
      */
     async getComic(number) {
-      await axios
-        .get(
-          "https://cors-anywhere.herokuapp.com/https://xkcd.com/" +
-            number +
-            "/info.0.json"
-        )
-        .then((res) => {
-          this.comic = res.data;
-        })
-        .catch(console.log);
+      let comics = JSON.parse(localStorage.getItem("comics"));
+      let found = false;
+
+      comics.forEach((comic) => {
+        if (comic.num == number) {
+          this.comic = comic;
+          found = true;
+        }
+      });
+
+      if (!found) {
+        await axios
+          .get(
+            "https://cors-anywhere.herokuapp.com/https://xkcd.com/" +
+              number +
+              "/info.0.json"
+          )
+          .then((res) => {
+            this.comic = res.data;
+            this.comic.rating = 0;
+            comics.push(this.comic);
+
+            localStorage.setItem("comics", JSON.stringify(comics));
+          })
+          .catch(console.log);
+      }
     },
     /**
      * Obtiene el numero del ultimo comic
@@ -126,6 +160,14 @@ export default {
       this.getComic(random);
     },
     /**
+     * Actualiza la calificación del comic en el arreglo
+     */
+    sortOutComic() {
+      let comics = JSON.parse(localStorage("comics"))
+
+      console.log(comics);
+    },
+    /**
      * Devuelve un numero aleatorio en un rango de 1 hasta el numero del ultimo comic
      * @param Number min -> Numero minimo del intervalo
      * @param Number max -> Numero maximo del intervalo
@@ -135,9 +177,10 @@ export default {
     },
   },
   beforeMount() {
+    localStorage.setItem("comics", JSON.stringify([]));
     this.getLastComic().then(() => {
       this.getRandomComic();
     });
-  },
+  }
 };
 </script>
