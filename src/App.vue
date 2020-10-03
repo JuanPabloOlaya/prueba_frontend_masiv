@@ -1,21 +1,16 @@
 <template>
   <v-app>
-    <v-main>
+    <v-main
+      :style="{ background: this.$vuetify.theme.themes['light'].primary }"
+    >
       <router-view></router-view>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld';
-
 export default {
-  name: 'App',
-
-  components: {
-    HelloWorld,
-  },
-
+  name: "App",
   data: () => ({
     //
   }),
